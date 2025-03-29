@@ -1,10 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token || token === 'undefined' || token === 'null') {
+      alert('로그인이 필요합니다');
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+      await axios.post('http://localhost:8080/api/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error('로그아웃 요청 실패:', error);
+    }
+
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -39,12 +66,16 @@ function Chat() {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSend();
-  };
-
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="p-6 max-w-2xl mx-auto relative">
+      {/* ✅ 로그아웃 버튼 */}
+      <button
+        onClick={handleLogout}
+        className="absolute top-4 right-4 text-sm text-red-500 hover:underline"
+      >
+        로그아웃
+      </button>
+
       <h1 className="text-2xl font-bold mb-4 text-center">🎤 작곡 도우미 GPT</h1>
 
       <div className="border rounded p-4 h-96 overflow-y-scroll bg-white shadow mb-4">
@@ -67,7 +98,7 @@ function Chat() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              e.preventDefault(); // 엔터 기본 제출 방지!
+              e.preventDefault();
               handleSend();
             }
           }}
