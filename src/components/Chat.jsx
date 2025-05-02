@@ -17,6 +17,11 @@ function Chat() {
     }
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -44,6 +49,13 @@ function Chat() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      e.preventDefault(); // 한글 조합 중 Enter 방지
+      handleSend();
+    }
+  };
+
   const handleGenerate = async () => {
     setGenerating(true);
     try {
@@ -55,16 +67,14 @@ function Chat() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-  
+
       const taskId = response.data;
       console.log("🎯 생성된 taskId:", taskId);
-  
-      if (!taskId) throw new Error("taskId가 없음");
-  
+      if (!taskId) throw new Error("taskId 없음");
       navigate(`/music?taskId=${taskId}`);
     } catch (error) {
       console.error("❌ 요청 실패:", error.response?.data || error.message);
-      alert('노래 생성 중 오류가 발생했습니다.'); 
+      alert('노래 생성 중 오류가 발생했습니다.');
     } finally {
       setGenerating(false);
     }
@@ -72,7 +82,15 @@ function Chat() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">🎤 작곡 도우미 GPT</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">🎤 작곡 도우미 GPT</h1>
+        <button
+          onClick={handleLogout}
+          className="text-sm text-gray-500 underline hover:text-gray-700"
+        >
+          로그아웃
+        </button>
+      </div>
 
       <div className="border rounded p-4 h-96 overflow-y-scroll bg-white shadow mb-4">
         {messages.map((msg, idx) => (
@@ -90,7 +108,7 @@ function Chat() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onKeyDown={handleKeyDown}
           placeholder="메시지를 입력하세요..."
           className="flex-1 px-4 py-2 border rounded-l focus:outline-none"
         />

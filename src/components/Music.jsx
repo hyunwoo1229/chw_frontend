@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 function Music() {
   const [musicList, setMusicList] = useState([]);
@@ -8,7 +8,8 @@ function Music() {
   const [checking, setChecking] = useState(true);
   const [searchParams] = useSearchParams();
   const taskId = searchParams.get('taskId');
-  console.log('taskId:', taskId); // 🧪 이 로그가 null이면 원인 확정!
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (!taskId) return;
@@ -40,11 +41,16 @@ function Music() {
 
   const handleChoose = async (music) => {
     try {
-      await axios.post('http://localhost:8080/api/suno/choose', music);
-      alert('노래 선택 완료!');
-      window.location.href = '/chat';
+      await axios.post('http://localhost:8080/api/suno/choose', music, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      navigate('/board/write', { state: { music } });
     } catch (error) {
       alert('선택 실패');
+      console.error(error);
     }
   };
 
@@ -65,7 +71,7 @@ function Music() {
               className="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => handleChoose(music)}
             >
-              이 곡 선택
+              이 곡 선택하고 게시글 쓰기
             </button>
           </div>
         ))}
