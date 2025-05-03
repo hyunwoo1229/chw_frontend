@@ -24,7 +24,8 @@ function Login() {
 
       // 성공 시 토큰 저장 및 페이지 이동
       localStorage.setItem('token', response.data.message); // SuccessResponse 안의 token은 message 필드에 담겨 있음
-      navigate('/chat');
+      localStorage.setItem('name', response.data.name);
+      navigate('/');
     } catch (error) {
       console.error(error);
 

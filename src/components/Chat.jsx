@@ -82,15 +82,6 @@ function Chat() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">🎤 작곡 도우미 GPT</h1>
-        <button
-          onClick={handleLogout}
-          className="text-sm text-gray-500 underline hover:text-gray-700"
-        >
-          로그아웃
-        </button>
-      </div>
 
       <div className="border rounded p-4 h-96 overflow-y-scroll bg-white shadow mb-4">
         {messages.map((msg, idx) => (

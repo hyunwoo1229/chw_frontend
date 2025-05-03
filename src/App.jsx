@@ -19,12 +19,11 @@ function App() {
   return (
    
       <Routes>
-        <Route path="/" element={<Navigate to="/chat" />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/music" element={<Music />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/board" element={<BoardList />} />
+        <Route path="/" element={<BoardList />} />
         <Route path="/board/:id" element={<BoardDetail />} />
         <Route path="/board/edit/:id" element={<BoardEdit />} />
         <Route path="/board/write" element={<BoardWrite />} />

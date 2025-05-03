@@ -58,7 +58,10 @@ function BoardDetail() {
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
       <h1 className="text-2xl font-bold mb-2">{board.title}</h1>
-      <p className="text-sm text-gray-500 mb-4">{board.authorName} · {board.createdAt}</p>
+      <p className="text-sm text-gray-500 mb-4">
+        {board.authorName} · {board.createdAt} · 조회수 {board.views}회
+      </p>
+
       <p className="mb-6 whitespace-pre-line">{board.content}</p>
 
       <img src={board.imageUrl} alt="cover" className="w-full h-60 object-cover rounded mb-4" />
