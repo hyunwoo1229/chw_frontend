@@ -14,6 +14,7 @@ import BoardList from './components/BoardList';
 import BoardDetail from './components/BoardDetail';
 import BoardEdit from './components/BoardEdit';
 import BoardWrite from './components/BoardWrite';
+import MyPage from './components/MyPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/board/:id" element={<BoardDetail />} />
         <Route path="/board/edit/:id" element={<BoardEdit />} />
         <Route path="/board/write" element={<BoardWrite />} />
+        <Route path="/board/my" element={<MyPage />} />
       </Routes>
     
   );
