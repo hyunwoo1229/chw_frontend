@@ -1,14 +1,15 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
-  const navigate = useNavigate()
   const [form, setForm] = useState({
     loginId: '',
     password: '',
     name: '',
   })
+
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -18,20 +19,20 @@ const Register = () => {
     e.preventDefault()
     try {
       await axios.post('http://localhost:8080/api/auth/register', form)
-      alert('회원가입 성공')
+      alert('회원가입 성공!')
       navigate('/login')
     } catch (err) {
-      alert('회원가입 실패')
+      alert('회원가입 실패: ' + (err.response?.data?.message || '서버 오류'))
     }
   }
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        <h2 className="text-xl font-bold mb-4 text-center">회원가입</h2>
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-xl font-bold mb-6 text-center">회원가입</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium">아이디(이메일):</label>
+            <label className="block text-sm font-medium mb-1">아이디(이메일):</label>
             <input
               type="text"
               name="loginId"
@@ -42,7 +43,7 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">비밀번호:</label>
+            <label className="block text-sm font-medium mb-1">비밀번호:</label>
             <input
               type="password"
               name="password"
@@ -53,7 +54,7 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">이름:</label>
+            <label className="block text-sm font-medium mb-1">이름:</label>
             <input
               type="text"
               name="name"
@@ -73,19 +74,19 @@ const Register = () => {
 
         <div className="mt-6 space-y-2">
           <button
-            onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
+            onClick={() => (window.location.href = 'http://localhost:8080/oauth2/authorization/google')}
             className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded"
           >
             구글로 가입
           </button>
           <button
-            onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/naver'}
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded"
+            onClick={() => (window.location.href = 'http://localhost:8080/oauth2/authorization/naver')}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded"
           >
-            네이버로 가입
+            네이버 가입
           </button>
           <button
-            onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/kakao'}
+            onClick={() => (window.location.href = 'http://localhost:8080/oauth2/authorization/kakao')}
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded"
           >
             카카오로 가입

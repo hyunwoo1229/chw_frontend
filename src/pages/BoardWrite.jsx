@@ -38,7 +38,7 @@ function BoardWrite() {
         }
       );
       alert('게시글 등록 완료!');
-      navigate('/board');
+      navigate('/');
     } catch (error) {
       console.error('등록 실패:', error);
       alert('게시글 등록 중 오류 발생');

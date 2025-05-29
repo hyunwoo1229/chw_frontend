@@ -7,6 +7,7 @@ function BoardDetail() {
   const navigate = useNavigate();
   const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -47,6 +48,37 @@ function BoardDetail() {
     }
   };
 
+  const handleYoutubeUpload = async () => {
+    if (!window.confirm('이 음악을 YouTube에 업로드하시겠습니까?')) return;
+  
+    try {
+      setUploading(true);
+      const res = await axios.post(
+        `http://localhost:8080/api/board/${id}/youtube`,
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      alert(`✅ YouTube 업로드 성공!\n${res.data.data}`);
+      window.open(res.data.data, '_blank');
+    } catch (e) {
+      const status = e.response?.status;
+      const message = e.response?.data?.message || e.message;
+  
+      if (status === 401 || status === 403) {
+        sessionStorage.setItem("pendingUploadBoardId", id);
+        window.location.href = `http://localhost:8080/api/connect/youtube?token=${token}`;
+      } else {
+        alert(`❌ 업로드 실패: ${message}`);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  
+
   if (loading) return <div className="text-center mt-10">⏳ 게시글을 불러오는 중...</div>;
   if (!board) return null;
 
@@ -60,7 +92,7 @@ function BoardDetail() {
           </p>
         </div>
 
-        {board.author === true && ( // ✅ 조건을 확실하게 체크
+        {board.author === true && (
           <div className="space-x-2">
             <button
               onClick={handleEdit}
@@ -80,7 +112,19 @@ function BoardDetail() {
 
       <img src={board.imageUrl} alt="cover" className="w-full h-64 object-cover mb-4" />
       <audio controls src={board.audioUrl} className="w-full mb-6" />
-      <p className="text-lg">{board.content || '내용이 없습니다.'}</p>
+      <p className="text-lg mb-4">{board.content || '내용이 없습니다.'}</p>
+
+      {board.author === true && (
+        <div className="text-right">
+          <button
+            onClick={handleYoutubeUpload}
+            disabled={uploading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            {uploading ? 'YouTube 업로드 중...' : 'YouTube 업로드'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

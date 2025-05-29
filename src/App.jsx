@@ -16,6 +16,7 @@ import BoardEdit from './pages/BoardEdit';
 import BoardWrite from './pages/BoardWrite';
 import MyPage from './pages/MyPage';
 import OAuthSuccess from './pages/OAuthSuccess'
+import UploadFinish from './pages/UploadFinish';
 
 // App.jsx 또는 index.jsx
 import axios from 'axios';
@@ -40,6 +41,7 @@ function App() {
         <Route path="/board/write" element={<BoardWrite />} />
         <Route path="/board/my" element={<MyPage />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
+        <Route path="/upload/finish" element={<UploadFinish />} />
       </Routes>
     
   );
