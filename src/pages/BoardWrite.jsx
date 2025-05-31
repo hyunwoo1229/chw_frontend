@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 function BoardWrite() {
   const { state } = useLocation();
@@ -11,7 +13,6 @@ function BoardWrite() {
   const [title, setTitle] = useState(music?.title || '');
   const [content, setContent] = useState('');
 
-  // ✅ music이 없으면 뒤로 보내거나 안내
   useEffect(() => {
     if (!music) {
       alert('유효하지 않은 접근입니다. 음악 정보가 없습니다.');
@@ -46,41 +47,57 @@ function BoardWrite() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">게시글 작성</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-12 flex justify-center">
+      <div className="w-full max-w-xl bg-gray-800/90 backdrop-blur-md p-8 rounded-xl shadow-lg">
+      <h1 className="text-2xl font-bold text-center mb-6 text-pink-400">게시글 작성</h1>
 
-      {/* 음악 미리보기 */}
-      <div className="mb-6 text-center">
-        <img src={music.imageUrl} alt="cover" className="w-48 h-48 object-cover mx-auto rounded mb-4" />
-        <audio controls src={music.audioUrl} className="w-full" />
+        {/* 음악 미리보기 */}
+        <div className="mb-8 text-center">
+          <img src={music.imageUrl} alt="cover" className="w-40 h-40 object-cover mx-auto rounded mb-4" />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-lg overflow-hidden"
+          >
+            <AudioPlayer
+              src={music.audioUrl}
+              showJumpControls={false}
+              customAdditionalControls={[]}
+              layout="horizontal"
+              className="w-full rounded-lg bg-gray-900 text-white accent-purple-500"
+            />
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-1 text-sm text-gray-300">제목</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm text-gray-300">내용</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={6}
+              className="w-full bg-gray-700 text-white border border-gray-600 px-3 py-2 rounded resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="곡에 대한 설명이나 하고 싶은 말을 적어보세요!"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded hover:brightness-110 transition"
+          >
+            등록하기
+          </button>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">제목</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-medium">내용</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={6}
-            className="w-full border px-3 py-2 rounded resize-none"
-            placeholder="곡에 대한 설명이나 하고 싶은 말을 적어보세요!"
-            required
-          />
-        </div>
-        <button type="submit" className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-          등록하기
-        </button>
-      </form>
     </div>
   );
 }

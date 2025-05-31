@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import { Pencil, Trash2 } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 function BoardDetail() {
   const { id } = useParams();
@@ -50,11 +54,11 @@ function BoardDetail() {
 
   const handleYoutubeUpload = async () => {
     if (!window.confirm('이 음악을 YouTube에 업로드하시겠습니까?')) return;
-  
+
     try {
       setUploading(true);
       const res = await axios.post(
-        `http://localhost:8080/api/board/${id}/youtube`,
+        `http://localhost:8080/api/youtube/${id}`,
         null,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -65,10 +69,10 @@ function BoardDetail() {
     } catch (e) {
       const status = e.response?.status;
       const message = e.response?.data?.message || e.message;
-  
+
       if (status === 401 || status === 403) {
-        sessionStorage.setItem("pendingUploadBoardId", id);
-        window.location.href = `http://localhost:8080/api/connect/youtube?token=${token}`;
+        sessionStorage.setItem('pendingUploadBoardId', id);
+        window.location.href = `http://localhost:8080/api/youtube/connect?token=${token}`;
       } else {
         alert(`❌ 업로드 실패: ${message}`);
       }
@@ -76,55 +80,84 @@ function BoardDetail() {
       setUploading(false);
     }
   };
-  
-  
 
-  if (loading) return <div className="text-center mt-10">⏳ 게시글을 불러오는 중...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        ⏳ 게시글을 불러오는 중...
+      </div>
+    );
+  }
+
   if (!board) return null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-3xl font-bold mb-2">{board.title}</h2>
-          <p className="text-gray-500">
-            {board.authorName} · {board.createdAt} · 조회수 {board.views}회
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-12">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 text-transparent bg-clip-text mb-2">
+              {board.title}
+            </h2>
+            <p className="text-gray-400 text-sm">
+              {board.authorName} · {board.createdAt} · 조회수 {board.views}회
+            </p>
+          </div>
+
+          {board.author === true && (
+            <div className="flex gap-2">
+              <button
+                onClick={handleEdit}
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 transition"
+                >
+                   <Pencil size={16} />
+              
+                수정
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white rounded-lg bg-gradient-to-r from-red-600 to-pink-600 hover:brightness-110 transition"
+              >
+                <Trash2 size={16} />
+                삭제
+              </button>
+            </div>
+          )}
         </div>
 
+        <div className="w-1/2 aspect-video mx-auto mb-6 overflow-hidden rounded-xl shadow-lg">
+  <img
+    src={board.imageUrl}
+    alt="cover"
+    className="w-full h-full object-cover"
+  />
+</div>
+
+        <div onClick={(e) => e.stopPropagation()}>
+          <AudioPlayer
+            src={board.audioUrl}
+            showJumpControls={false}
+            customAdditionalControls={[]}
+            layout="horizontal"
+            className="w-full rounded-lg bg-gray-900 text-white accent-purple-500"
+          />
+        </div>
+
+        <p className="text-lg text-white/90 whitespace-pre-line">{board.content || '내용이 없습니다.'}</p>
+
         {board.author === true && (
-          <div className="space-x-2">
+          <div className="text-right">
             <button
-              onClick={handleEdit}
-              className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+              onClick={handleYoutubeUpload}
+              disabled={uploading}
+              className="inline-flex items-center gap-2 px-5 py-3 mt-4 font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-lg hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              수정
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              삭제
+              <Upload size={18} />
+              {uploading ? 'YouTube 업로드 중...' : 'YouTube 업로드'}
             </button>
           </div>
         )}
       </div>
-
-      <img src={board.imageUrl} alt="cover" className="w-full h-64 object-cover mb-4" />
-      <audio controls src={board.audioUrl} className="w-full mb-6" />
-      <p className="text-lg mb-4">{board.content || '내용이 없습니다.'}</p>
-
-      {board.author === true && (
-        <div className="text-right">
-          <button
-            onClick={handleYoutubeUpload}
-            disabled={uploading}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            {uploading ? 'YouTube 업로드 중...' : 'YouTube 업로드'}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

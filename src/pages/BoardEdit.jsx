@@ -43,14 +43,15 @@ function BoardEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8080/api/board/${id}`, {
-        title,
-        content,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(
+        `http://localhost:8080/api/board/${id}`,
+        { title, content },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert('수정 완료');
       navigate(`/board/${id}`);
     } catch (error) {
@@ -59,36 +60,50 @@ function BoardEdit() {
     }
   };
 
-  if (loading) return <div className="text-center mt-10">불러오는 중...</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        불러오는 중...
+      </div>
+    );
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">게시글 수정</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium">제목</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 font-medium">내용</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={6}
-            className="w-full border px-3 py-2 rounded resize-none"
-            required
-          />
-        </div>
-        <button type="submit" className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-          수정하기
-        </button>
-      </form>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-12">
+      <div className="max-w-2xl mx-auto bg-gray-800/70 p-8 rounded-xl shadow-xl backdrop-blur">
+        <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-6">
+          게시글 수정
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block mb-2 font-semibold text-gray-300">제목</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-2 font-semibold text-gray-300">내용</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={8}
+              className="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+            />
+          </div>
+          <div className="text-right">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:brightness-110 transition"
+            >
+              수정하기
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

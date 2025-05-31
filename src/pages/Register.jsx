@@ -1,100 +1,110 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [form, setForm] = useState({
     loginId: '',
     password: '',
     name: '',
-  })
+  });
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      await axios.post('http://localhost:8080/api/auth/register', form)
-      alert('회원가입 성공!')
-      navigate('/login')
+      await axios.post('http://localhost:8080/api/member/register', form);
+      alert('회원가입 성공!');
+      navigate('/login');
     } catch (err) {
-      alert('회원가입 실패: ' + (err.response?.data?.message || '서버 오류'))
+      alert('회원가입 실패: ' + (err.response?.data?.message || '서버 오류'));
     }
-  }
+  };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-xl font-bold mb-6 text-center">회원가입</h2>
+    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      <div className="bg-gray-800/80 backdrop-blur-md p-8 rounded-xl shadow-xl w-full max-w-sm">
+        <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 text-center mb-6">
+          회원가입
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">아이디(이메일):</label>
+            <label className="block text-sm font-medium text-gray-300">아이디(이메일)</label>
             <input
               type="text"
               name="loginId"
               value={form.loginId}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="아이디 입력"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">비밀번호:</label>
+            <label className="block text-sm font-medium text-gray-300">비밀번호</label>
             <input
               type="password"
               name="password"
               value={form.password}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="비밀번호 입력"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">이름:</label>
+            <label className="block text-sm font-medium text-gray-300">이름</label>
             <input
               type="text"
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="이름 입력"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded"
+            className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded hover:brightness-110 transition"
           >
             회원가입
           </button>
         </form>
 
         <div className="mt-6 space-y-2">
+          {/* Google */}
           <button
             onClick={() => (window.location.href = 'http://localhost:8080/oauth2/authorization/google')}
-            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded"
+            className="w-full bg-white text-black py-2 px-4 rounded flex items-center justify-center gap-2 border"
           >
-            구글로 가입
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
+            구글로 시작하기
           </button>
+
+          {/* Naver */}
           <button
             onClick={() => (window.location.href = 'http://localhost:8080/oauth2/authorization/naver')}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded"
+            className="w-full bg-[#03C75A] text-white py-2 px-4 rounded flex items-center justify-center gap-2"
           >
-            네이버 가입
+            <img src="https://www.svgrepo.com/show/368248/naver-square.svg" alt="Naver" className="w-5 h-5 rounded-sm" />
+            네이버로 시작하기
           </button>
+
+          {/* Kakao */}
           <button
             onClick={() => (window.location.href = 'http://localhost:8080/oauth2/authorization/kakao')}
-            className="w-full bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded"
+            className="w-full bg-[#FEE500] text-black py-2 px-4 rounded flex items-center justify-center gap-2"
           >
-            카카오로 가입
+            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png" alt="Kakao" className="w-5 h-5" />
+            카카오로 시작하기
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
