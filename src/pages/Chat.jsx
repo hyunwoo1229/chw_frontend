@@ -13,6 +13,13 @@ function Chat() {
   const scrollRef = useRef(null);
   const bottomRef = useRef(null);
   const autoScrollRef = useRef(true);
+  const firstLoadRef = useRef(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 0);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,8 +30,17 @@ function Chat() {
   }, [navigate]);
 
   useEffect(() => {
+    if (firstLoadRef.current) {
+      firstLoadRef.current = false;
+      return;
+    }
+
     if (autoScrollRef.current) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      bottomRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
     } else {
       setShowNewMessageBadge(true);
     }
@@ -99,17 +115,21 @@ function Chat() {
   };
 
   const scrollToBottom = () => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    });
     autoScrollRef.current = true;
     setShowNewMessageBadge(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f0f1a] to-[#1c1c2b] text-white px-0 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-[#0f0f1a] to-[#1c1c2b] text-white px-0 pt-16">
       {/* 설명 */}
-      <div className="max-w-full px-10 text-left mb-10">
+      <div className="max-w-full px-10 text-left mb-6 mt-0">
         <h2 className="text-5xl font-bold text-white mb-2">AI와 함께 노래를 만들어봐요!</h2>
-        <p className="text-[16px] text-gray-300 leading-relaxed mt-[60px]">
+        <p className="text-[18px] text-gray-300 leading-relaxed mt-6">
           아직 떠오르는 주제나 가사가 없어도 괜찮아요.<br />
           AI가 대화를 통해 멋진 노래를 만들어 줄 거예요.<br />
           생각나는 감정이나 이야기를 자유롭게 입력해보세요.<br />
@@ -120,11 +140,11 @@ function Chat() {
       </div>
 
       {/* 채팅 */}
-      <div className="grid grid-cols-12 px-10 " >
-        <div className="col-span-12 flex flex-col items-end space-y-4 self-start mt-[-250px]">
+      <div className="grid grid-cols-12 px-10 mt-[-200px]">
+        <div className="col-span-12 flex flex-col items-end space-y-4 self-start">
           {/* 대화창 */}
           <div
-            className="h-[600px] w-[65%] ml-auto mt-0 bg-gray-800/50 backdrop-blur-md rounded-xl p-6 overflow-y-scroll shadow-lg"
+            className="h-[550px] w-[65%] ml-auto bg-gray-800/50 backdrop-blur-md rounded-xl p-6 overflow-y-scroll shadow-lg"
             ref={scrollRef}
             onScroll={handleScroll}
           >
