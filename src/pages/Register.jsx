@@ -2,11 +2,18 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const countries = ["대한민국", "미국", "일본", "영국", "프랑스", "독일", "캐나다", "중국", "호주", "인도"];
+const genders = ["남성", "여성"];
+const ages = Array.from({ length: 101 }, (_, i) => i);
+
 const Register = () => {
   const [form, setForm] = useState({
     loginId: '',
     password: '',
     name: '',
+    age: '',
+    gender: '',
+    country: ''
   });
 
   const navigate = useNavigate();
@@ -66,6 +73,55 @@ const Register = () => {
               placeholder="이름 입력"
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300">나이</label>
+            <select
+              name="age"
+              value={form.age}
+              onChange={handleChange}
+              className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded"
+              required
+            >
+              <option value="">나이 선택</option>
+              {ages.map(age => (
+                <option key={age} value={age}>{age}세</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300">성별</label>
+            <select
+              name="gender"
+              value={form.gender}
+              onChange={handleChange}
+              className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded"
+              required
+            >
+              <option value="">성별 선택</option>
+              {genders.map(g => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300">국가</label>
+            <select
+              name="country"
+              value={form.country}
+              onChange={handleChange}
+              className="w-full bg-gray-700 border border-gray-600 text-white px-3 py-2 rounded"
+              required
+            >
+              <option value="">국가 선택</option>
+              {countries.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
           <button
             type="submit"
             className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded hover:brightness-110 transition"

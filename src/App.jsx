@@ -14,6 +14,7 @@ import BoardWrite from './pages/BoardWrite';
 import MyPage from './pages/MyPage';
 import OAuthSuccess from './pages/OAuthSuccess';
 import UploadFinish from './pages/UploadFinish';
+import SocialExtra from './pages/SocialExtra';
 
 import axios from 'axios';
 
@@ -41,7 +42,8 @@ function App() {
       {/* 로그인/회원가입 등 단독 페이지 */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/oauth2/success" element={<OAuthSuccess />} />
+      <Route path="/oauth-success" element={<OAuthSuccess />} />
+      <Route path="/social-extra" element={<SocialExtra />}  />
     </Routes>
   );
 }
