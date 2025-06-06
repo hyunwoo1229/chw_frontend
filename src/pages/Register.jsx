@@ -10,22 +10,43 @@ const Register = () => {
   const [form, setForm] = useState({
     loginId: '',
     password: '',
+    confirmPassword: '', // 추가
     name: '',
     age: '',
     gender: '',
     country: ''
   });
 
+  const [passwordError, setPasswordError] = useState(''); // 비밀번호 불일치 오류 상태
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    if (name === 'password' || name === 'confirmPassword') {
+      setPasswordError('');
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 비밀번호 확인
+    if (form.password !== form.confirmPassword) {
+      setPasswordError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
     try {
-      await axios.post('http://localhost:8080/api/member/register', form);
+      await axios.post('http://localhost:8080/api/member/register', {
+        loginId: form.loginId,
+        password: form.password,
+        name: form.name,
+        age: form.age,
+        gender: form.gender,
+        country: form.country
+      });
       alert('회원가입 성공!');
       navigate('/login');
     } catch (err) {
@@ -51,6 +72,7 @@ const Register = () => {
               placeholder="아이디 입력"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-300">비밀번호</label>
             <input
@@ -62,6 +84,22 @@ const Register = () => {
               placeholder="비밀번호 입력"
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300">비밀번호 확인</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className={`w-full bg-gray-700 border ${passwordError ? 'border-red-500' : 'border-gray-600'} text-white px-3 py-2 rounded focus:outline-none ${passwordError ? 'focus:ring-2 focus:ring-red-500' : 'focus:ring-2 focus:ring-purple-500'}`}
+              placeholder="비밀번호를 다시 입력하세요"
+            />
+            {passwordError && (
+              <p className="mt-1 text-sm text-red-500">{passwordError}</p>
+            )}
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-300">이름</label>
             <input

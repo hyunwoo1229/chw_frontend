@@ -1,109 +1,154 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import AudioPlayer from 'react-h5-audio-player';
-import 'react-h5-audio-player/lib/styles.css';
-import IntroSection from '../components/IntroSection';
+import { useNavigate } from 'react-router-dom';
+import CategoryCarousel from '../components/CategoryCarousel';
 
 function BoardList() {
-  const [boards, setBoards] = useState([]);
+  const navigate = useNavigate();
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+
+  // 조회순, 최신순, 그리고 같은 나이대/같은 국가/같은 성별 게시물을 담을 상태 추가
+  const [popularBoards, setPopularBoards] = useState([]);
+  const [recentBoards, setRecentBoards] = useState([]);
+  const [sameAgeBoards, setSameAgeBoards] = useState([]);
+  const [sameCountryBoards, setSameCountryBoards] = useState([]);
+  const [sameGenderBoards, setSameGenderBoards] = useState([]);
 
   useEffect(() => {
-    const fetchBoards = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('http://localhost:8080/api/board');
-        setBoards(response.data);
-      } catch (error) {
-        console.error('게시글 목록 불러오기 실패:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    // 1) localStorage에서 사용자 이름만 가져오기
     const storedName = localStorage.getItem('name');
     if (storedName) {
       setUserName(storedName);
     }
 
-    fetchBoards();
-  }, []);
+    // 2) 백엔드 API 호출: /api/board 한 번만 (다섯 개 카테고리 데이터를 함께 받아옴)
+    const fetchCategories = async () => {
+      setLoading(true);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('name');
-    navigate('/');
-    window.location.reload();
-  };
+      try {
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        };
+
+        const response = await axios.get(
+          'http://localhost:8080/api/board',
+          axiosConfig
+        );
+
+        // 서버가 응답해 주는 JSON 형태는 예를 들어:
+        // {
+        //   popularBoards: [...],
+        //   recentBoards: [...],
+        //   sameAgeBoards: [...],
+        //   sameCountryBoards: [...],
+        //   sameGenderBoards: [...]
+        // }
+
+        const data = response.data;
+
+        // 3) 받은 데이터들 상태에 세팅
+        setPopularBoards(data.popularBoards || []);
+        setRecentBoards(data.recentBoards || []);
+        setSameAgeBoards(data.sameAgeBoards || []);
+        setSameCountryBoards(data.sameCountryBoards || []);
+        setSameGenderBoards(data.sameGenderBoards || []);
+      } catch (error) {
+        console.error('카테고리별 게시물 조회 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-      <IntroSection />
-
-      <main className="max-w-7xl mx-auto px-4 pt-24 pb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 mb-2">
-              음악 게시판
-            </h1>
-            <p className="text-gray-400">다양한 음악을 발견하고 공유하세요</p>
-          </div>
+      {/* ── 본문 ── */}
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="border-4 border-gray-700 border-t-purple-500 rounded-full w-12 h-12 animate-spin"></div>
         </div>
+      ) : (
+        <main className="w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16 pt-6 pb-8">
+          {/* 1) 조회순 게시물 */}
+          {popularBoards.length > 0 && (
+            <>
+              <h2 className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 mb-4">
+                조회순 게시물
+              </h2>
+              <CategoryCarousel
+                title=""
+                items={popularBoards}
+                basePath="/board"
+              />
+            </>
+          )}
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="border-4 border-gray-700 border-t-purple-500 rounded-full w-12 h-12 animate-spin"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {boards.map((board) => (
-              <div
-                key={board.id}
-                className="group bg-gray-800/50 rounded-xl overflow-hidden border border-gray-700/50 hover:border-purple-500/30 shadow-lg hover:shadow-purple-500/10 transition-all duration-300"
-                onClick={() => navigate(`/board/${board.id}`)}
-              >
-                <div className="relative overflow-hidden aspect-video">
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity z-10"></div>
-                  <img
-                    src={board.imageUrl}
-                    alt="Album cover"
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+          {/* 2) 최신순 게시물 */}
+          {recentBoards.length > 0 && (
+            <>
+              <h2 className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 mt-12 mb-4">
+                최신순 게시물
+              </h2>
+              <CategoryCarousel
+                title=""
+                items={recentBoards}
+                basePath="/board"
+              />
+            </>
+          )}
+
+          {/* 같은 나이대/같은 국가/같은 성별은 로그인된 사용자만 */}
+          {userName && (
+            <>
+              {/* 3) 같은 나이대 게시물 */}
+              {sameAgeBoards.length > 0 && (
+                <>
+                  <h2 className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 mt-12 mb-4">
+                    같은 나이대 게시물
+                  </h2>
+                  <CategoryCarousel
+                    title=""
+                    items={sameAgeBoards}
+                    basePath="/board"
                   />
-                  <div className="absolute bottom-4 left-4 right-4 z-20">
-                    <h2 className="text-lg font-bold text-white truncate mb-1">
-                      {board.title}
-                    </h2>
-                    <p className="text-sm text-gray-300 opacity-90">
-                      {board.authorName}
-                    </p>
-                  </div>
-                </div>
+                </>
+              )}
 
-                <div className="p-4">
-                  <div className="flex items-center text-sm text-gray-400 space-x-3 mb-4">
-                    <span>{board.createdAt}</span>
-                    <span>•</span>
-                    <span>조회수 {board.views}회</span>
-                  </div>
+              {/* 4) 같은 국가 게시물 */}
+              {sameCountryBoards.length > 0 && (
+                <>
+                  <h2 className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 mt-12 mb-4">
+                    같은 국가 게시물
+                  </h2>
+                  <CategoryCarousel
+                    title=""
+                    items={sameCountryBoards}
+                    basePath="/board"
+                  />
+                </>
+              )}
 
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <AudioPlayer
-                      src={board.audioUrl}
-                      showJumpControls={false}
-                      customAdditionalControls={[]}
-                      layout="horizontal"
-                      className="w-full rounded-lg bg-gray-900 text-white accent-purple-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
+              {/* 5) 같은 성별 게시물 */}
+              {sameGenderBoards.length > 0 && (
+                <>
+                  <h2 className="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 mt-12 mb-4">
+                    같은 성별 게시물
+                  </h2>
+                  <CategoryCarousel
+                    title=""
+                    items={sameGenderBoards}
+                    basePath="/board"
+                  />
+                </>
+              )}
+            </>
+          )}
+        </main>
+      )}
     </div>
   );
 }
