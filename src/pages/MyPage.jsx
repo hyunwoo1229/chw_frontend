@@ -78,11 +78,7 @@ function MyPage() {
           <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 text-transparent bg-clip-text">
             📁 마이페이지
           </h2>
-          {name && (
-            <span className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-pink-400">
-              안녕하세요 {name}님!
-            </span>
-          )}
+
         </div>
 
         {/* ── 정렬 버튼들 ── */}

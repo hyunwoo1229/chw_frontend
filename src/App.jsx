@@ -16,6 +16,7 @@ import OAuthSuccess from './pages/OAuthSuccess';
 import UploadFinish from './pages/UploadFinish';
 import SocialExtra from './pages/SocialExtra';
 import SearchPage from './pages/SearchPage';
+import ProfilePage from './pages/ProfilePage';
 
 import axios from 'axios';
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/board/edit/:id" element={<BoardEdit />} />
         <Route path="/board/write" element={<BoardWrite />} />
         <Route path="/board/my" element={<MyPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/* 채팅, 음악, 업로드 완료 페이지 */}
         <Route path="/chat" element={<Chat />} />

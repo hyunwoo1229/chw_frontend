@@ -1,3 +1,4 @@
+// src/components/Layout.jsx
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -20,15 +21,13 @@ const Layout = () => {
 
   // 경로(pathname) 또는 쿼리(location.search)가 바뀔 때마다 userName 갱신
   useEffect(() => {
-    const storedName = localStorage.getItem('name');
-    setUserName(storedName);
+    setUserName(localStorage.getItem('name'));
   }, [location.pathname, location.search]);
 
   // 헤더 검색창의 입력값을 상태로 관리
   const [headerSearch, setHeaderSearch] = useState('');
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const q = params.get('query') || '';
+    const q = new URLSearchParams(location.search).get('query') || '';
     setHeaderSearch(q);
   }, [location.search]);
 
@@ -50,17 +49,18 @@ const Layout = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const trimmed = headerSearch.trim();
-    if (trimmed) {
-      navigate(`/search?query=${encodeURIComponent(trimmed)}`);
-    } else {
-      navigate('/search');
-    }
+    navigate(trimmed ? `/search?query=${encodeURIComponent(trimmed)}` : '/search');
   };
 
   const pathname = location.pathname;
-  const hideSongButton = ['/chat', '/music', '/board/write'].some((path) =>
+  const hideSongButton = ['/chat', '/music', '/board/write'].some(path =>
     pathname.startsWith(path)
   );
+
+  // 마이페이지 / 내 정보 보기 버튼 동적 설정
+  const isOnMyPage = pathname === '/board/my';
+  const profileLabel = isOnMyPage ? '내 정보 보기' : '마이페이지';
+  const profilePath  = isOnMyPage ? '/profile'      : '/board/my';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
@@ -85,7 +85,7 @@ const Layout = () => {
             <input
               type="text"
               value={headerSearch}
-              onChange={(e) => setHeaderSearch(e.target.value)}
+              onChange={e => setHeaderSearch(e.target.value)}
               placeholder="게시물 제목 검색"
               className="flex-grow bg-gray-700 border border-gray-600 text-white px-4 py-2.5 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
@@ -113,11 +113,11 @@ const Layout = () => {
                 )}
 
                 <button
-                  onClick={() => navigate('/board/my')}
+                  onClick={() => navigate(profilePath)}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-colors"
                 >
                   <User size={16} />
-                  <span className="hidden sm:inline">마이페이지</span>
+                  <span className="hidden sm:inline">{profileLabel}</span>
                 </button>
 
                 <button
@@ -157,7 +157,7 @@ const Layout = () => {
         </div>
       </header>
 
-      {/* ── 로그인하지 않은 상태에서만 IntroSection 보이기 ── */}
+      {/* 로그인하지 않은 상태에서만 홈("/")일 때 IntroSection 렌더 */}
       {location.pathname === '/' && !userName && <IntroSection />}
 
       <main className="pt-20">
