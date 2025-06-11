@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
@@ -61,7 +62,7 @@ const ProfilePage = () => {
     );
   }
 
-  // Helper to get initials from name
+  // 이름 이니셜 뽑기 헬퍼
   const getInitials = name =>
     name
       .split(' ')
@@ -74,6 +75,7 @@ const ProfilePage = () => {
       <div className="bg-gray-800/60 backdrop-blur-md p-8 rounded-2xl w-full max-w-lg shadow-xl border border-gray-700">
         {/* Header */}
         <h2 className="text-3xl font-extrabold text-white mb-4 text-center">내 정보</h2>
+
         {/* Avatar */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-24 h-24 rounded-full bg-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
@@ -81,10 +83,17 @@ const ProfilePage = () => {
           </div>
           <p className="mt-2 text-lg font-semibold text-gray-200">{profile.name}님</p>
         </div>
+
         {/* Profile Info */}
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           {[
-            { label: '아이디', value: profile.loginId },
+            {
+              label: profile.provider === 'form' ? '로그인 ID' : '소셜 로그인',
+              value:
+                profile.provider === 'form'
+                  ? profile.loginId
+                  : profile.provider
+            },
             { label: '나이', value: `${profile.age}세` },
             { label: '성별', value: profile.gender },
             { label: '국가', value: profile.country }
@@ -94,69 +103,76 @@ const ProfilePage = () => {
               className="bg-gray-700/40 hover:bg-gray-700/60 transition p-4 rounded-xl flex flex-col"
             >
               <dt className="text-sm text-gray-300">{item.label}</dt>
-              <dd className="mt-1 text-xl font-medium text-white">{item.value}</dd>
+              <dd className="mt-1 text-xl font-medium text-white break-all whitespace-normal">
+                {item.value}
+              </dd>
             </div>
           ))}
         </dl>
-        {/* Action */}
-        {!editing ? (
-          <button
-            onClick={() => setEditing(true)}
-            className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-semibold text-white hover:scale-105 transition-transform shadow-md"
-          >
-            비밀번호 변경
-          </button>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block mb-2 text-gray-200">현재 비밀번호</label>
-              <input
-                type="password"
-                name="currentPassword"
-                value={form.currentPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-gray-200">새 비밀번호</label>
-              <input
-                type="password"
-                name="newPassword"
-                value={form.newPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-gray-200">비밀번호 확인</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div className="flex justify-between">
+
+        {/* Password Change (폼 로그인일 때만 표시) */}
+        {profile.provider === 'form' && (
+          <>
+            {!editing ? (
               <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="px-5 py-2 border border-gray-600 rounded-full text-gray-300 hover:bg-gray-700 transition"
+                onClick={() => setEditing(true)}
+                className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-semibold text-white hover:scale-105 transition-transform shadow-md"
               >
-                취소
+                비밀번호 변경
               </button>
-              <button
-                type="submit"
-                className="px-8 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white font-semibold hover:scale-105 transition-transform shadow-md"
-              >
-                저장
-              </button>
-            </div>
-          </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block mb-2 text-gray-200">현재 비밀번호</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={form.currentPassword}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-gray-200">새 비밀번호</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={form.newPassword}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-gray-200">비밀번호 확인</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  />
+                </div>
+                <div className="flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(false)}
+                    className="px-5 py-2 border border-gray-600 rounded-full text-gray-300 hover:bg-gray-700 transition"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-8 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white font-semibold hover:scale-105 transition-transform shadow-md"
+                  >
+                    저장
+                  </button>
+                </div>
+              </form>
+            )}
+          </>
         )}
       </div>
     </div>
