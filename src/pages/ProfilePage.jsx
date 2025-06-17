@@ -15,7 +15,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // 다른 컴포넌트와 마찬가지로, 먼저 로그인 상태를 확인합니다.
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         alert('로그인이 필요합니다.');
@@ -24,7 +23,6 @@ const ProfilePage = () => {
       }
       
       try {
-        // http... 로 시작하는 전체 주소 대신 상대 경로를 사용합니다 (baseURL은 setupAxios.js에서 설정).
         const res = await axios.get('/api/member/profile');
         setProfile(res.data);
       } catch (error) {
@@ -50,7 +48,6 @@ const ProfilePage = () => {
     }
 
     try {
-      // async/await 구문으로 변경하고 상대 경로를 사용합니다.
       await axios.put('/api/member/profile/password', {
         oldPassword: form.currentPassword,
         newPassword: form.newPassword

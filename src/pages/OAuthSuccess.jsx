@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // useNavigate는 이제 사용되지 않습니다.
 
 const OAuthSuccess = () => {
-  // navigate는 더 이상 필요 없습니다.
-  // const navigate = useNavigate();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,17 +14,12 @@ const OAuthSuccess = () => {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("name", name);
 
-      // - - - - 수정할 부분 - - - - -
-      // navigate("/"); // 이 줄을 아래 코드로 변경합니다.
       window.location.replace("/"); // 메인 페이지로 이동하며 새로고침하고, 뒤로가기 기록을 남기지 않습니다.
-      // - - - - - - - - - - - - - - -
 
     } else {
       alert("로그인 중 문제가 발생했습니다. 토큰 정보가 없습니다.");
-      // 여기도 동일하게 변경합니다.
       window.location.replace("/");
     }
-  // 의존성 배열에서 navigate 제거
   }, []);
 
   return (

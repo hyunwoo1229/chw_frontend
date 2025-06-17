@@ -22,7 +22,6 @@ function Chat() {
   }, []);
 
   useEffect(() => {
-    // 'token' -> 'accessToken'으로 키 이름 수정
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
       alert('로그인이 필요합니다');
@@ -56,7 +55,6 @@ function Chat() {
     setLoading(true);
 
     try {
-      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       const response = await axios.post(
         'http://localhost:8080/api/chat',
         { messages: newMessages }
@@ -81,7 +79,6 @@ function Chat() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       const response = await axios.post(
         'http://localhost:8080/api/chat/summarize',
         { messages }

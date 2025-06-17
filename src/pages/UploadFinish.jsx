@@ -6,10 +6,8 @@ function UploadFinish() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // useEffect 내에서 비동기 함수를 선언하고 바로 호출하는 패턴 사용
     const retryUpload = async () => {
       const boardId = sessionStorage.getItem("pendingUploadBoardId");
-      // 'token' -> 'accessToken'으로 키 이름 수정
       const accessToken = localStorage.getItem("accessToken");
 
       if (!accessToken || !boardId) {
@@ -19,7 +17,6 @@ function UploadFinish() {
       }
 
       try {
-        // headers 옵션 제거 및 async/await 구문으로 변경
         const res = await axios.post(`http://localhost:8080/api/youtube/${boardId}`, null);
         
         alert("✅ YouTube 업로드 성공!");

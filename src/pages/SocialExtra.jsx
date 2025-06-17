@@ -14,7 +14,6 @@ const SocialExtra = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    // 백엔드에서 보낸 key 이름('accessToken', 'refreshToken')으로 수정
     const accessToken = params.get('accessToken');
     const refreshToken = params.get('refreshToken');
     const name = decodeURIComponent(params.get('name') || '');
@@ -28,8 +27,6 @@ const SocialExtra = () => {
       localStorage.setItem('name', name);
     }
     
-    // 🔴 axios의 전역 설정을 직접 수정하는 코드는 매우 위험하므로 반드시 제거합니다.
-    // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   }, [location.search]);
 
@@ -40,8 +37,6 @@ const SocialExtra = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 수동으로 토큰을 가져오거나 headers를 설정할 필요 없이,
-      // 인터셉터가 자동으로 인증을 처리합니다.
       await axios.post('/api/member/update-extra', form);
       
       alert('정보 입력 완료!');

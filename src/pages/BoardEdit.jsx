@@ -5,7 +5,7 @@ import axios from 'axios';
 function BoardEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
-  // token을 직접 가져오는 코드 제거
+
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -14,7 +14,6 @@ function BoardEdit() {
   useEffect(() => {
     const fetchBoard = async () => {
       try {
-        // headers 옵션 제거 -> 인터셉터가 자동으로 처리
         const response = await axios.get(`http://localhost:8080/api/board/${id}`);
         const board = response.data;
         if (!board.author) {
@@ -35,13 +34,12 @@ function BoardEdit() {
     };
 
     fetchBoard();
-  // 의존성 배열에서 token 제거
+
   }, [id, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       await axios.put(
         `http://localhost:8080/api/board/${id}`,
         { title, content }

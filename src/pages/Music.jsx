@@ -11,7 +11,6 @@ function Music() {
   const [searchParams] = useSearchParams();
   const taskId = searchParams.get('taskId');
   const navigate = useNavigate();
-  // token을 직접 가져오는 코드 제거
 
   useEffect(() => {
     // 페이지 접근 시 로그인 여부 확인
@@ -28,8 +27,6 @@ function Music() {
 
     const checkMusicReady = async () => {
       try {
-        // 이 API는 인증이 필요 없으므로 headers를 보내지 않아도 됩니다.
-        // 인터셉터는 토큰이 없으면 그냥 요청을 보냅니다.
         const response = await axios.get(`http://localhost:8080/api/suno/music-list?taskId=${taskId}`);
         const completeList = response.data.filter(m => m.audioUrl);
 

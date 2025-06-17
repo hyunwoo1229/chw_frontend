@@ -25,7 +25,6 @@ function BoardList() {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        // headers를 수동으로 추가하는 부분을 모두 제거합니다.
         // 인터셉터가 localStorage를 확인하여 토큰이 있으면 자동으로 헤더를 추가하고, 없으면 그냥 요청을 보냅니다.
         const response = await axios.get(
           'http://localhost:8080/api/board'

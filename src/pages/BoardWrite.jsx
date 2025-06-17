@@ -8,7 +8,6 @@ function BoardWrite() {
   const { state } = useLocation();
   const music = state?.music;
   const navigate = useNavigate();
-  // token을 직접 가져오는 코드 제거
 
   const [title, setTitle] = useState(music?.title || '');
   const [content, setContent] = useState('');
