@@ -12,17 +12,31 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("1. 로그인 버튼 클릭됨. handleSubmit 함수 시작.");
+
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/login', form);
-      const { token, name } = res.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('name', name);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      navigate('/');
+        console.log("2. 서버에 로그인 요청 시도. 요청 데이터:", form);
+        
+        const res = await axios.post('http://localhost:8080/api/auth/login', form);
+
+        console.log("3. 서버로부터 응답 받음. 응답 데이터:", res.data);
+
+        const { accessToken, refreshToken, name } = res.data;
+        
+        console.log("4. 토큰 저장 시도. accessToken:", accessToken, "refreshToken:", refreshToken);
+
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('name', name);
+        
+        console.log("5. 토큰 저장 완료. 메인 페이지로 이동합니다.");
+
+        navigate('/');
     } catch (err) {
-      alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
+        console.error("로그인 프로세스 중 에러 발생:", err);
+        alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
     }
-  };
+};
 
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
@@ -62,34 +76,34 @@ const Login = () => {
         </form>
 
         <div className="mt-6 space-y-2">
-  {/* Google */}
-  <button
-    onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
-    className="w-full bg-white text-black py-2 px-4 rounded flex items-center justify-center gap-2 border"
-  >
-    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
-    구글로 로그인
-  </button>
+          {/* Google */}
+          <button
+            onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
+            className="w-full bg-white text-black py-2 px-4 rounded flex items-center justify-center gap-2 border"
+          >
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" className="w-5 h-5" />
+            구글로 로그인
+          </button>
 
-  {/* Naver */}
-<button
-  onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/naver'}
-  className="w-full bg-[#03C75A] text-white py-2 px-4 rounded flex items-center justify-center gap-2"
->
-  <img src="https://www.svgrepo.com/show/368248/naver-square.svg" alt="Naver" className="w-5 h-5 rounded-sm" />
-  네이버로 로그인
-</button>
+          {/* Naver */}
+        <button
+          onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/naver'}
+          className="w-full bg-[#03C75A] text-white py-2 px-4 rounded flex items-center justify-center gap-2"
+        >
+          <img src="https://www.svgrepo.com/show/368248/naver-square.svg" alt="Naver" className="w-5 h-5 rounded-sm" />
+          네이버로 로그인
+        </button>
 
 
-  {/* Kakao */}
-  <button
-    onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/kakao'}
-    className="w-full bg-[#FEE500] text-black py-2 px-4 rounded flex items-center justify-center gap-2"
-  >
-    <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png" alt="Kakao" className="w-5 h-5" />
-    카카오로 로그인
-  </button>
-</div>
+          {/* Kakao */}
+          <button
+            onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/kakao'}
+            className="w-full bg-[#FEE500] text-black py-2 px-4 rounded flex items-center justify-center gap-2"
+          >
+            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png" alt="Kakao" className="w-5 h-5" />
+            카카오로 로그인
+          </button>
+        </div>
 
       </div>
     </div>

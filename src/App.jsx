@@ -17,8 +17,7 @@ import UploadFinish from './pages/UploadFinish';
 import SocialExtra from './pages/SocialExtra';
 import SearchPage from './pages/SearchPage';
 import ProfilePage from './pages/ProfilePage';
-
-import axios from 'axios';
+import './setupAxios';
 
 // (1) 앱 시작 시, 로컬스토리지에 토큰이 있으면 axios 헤더에 자동으로 붙입니다.
 const token = localStorage.getItem('token');

@@ -1,62 +1,53 @@
-// src/setupAxios.js
 import axios from 'axios';
 
-// 1) baseURL 설정
-axios.defaults.baseURL = import.meta.env.DEV
-  ? 'http://localhost:8080'
-  : '';
+// axios의 기본 요청 URL을 백엔드 서버로 설정합니다.
+axios.defaults.baseURL = 'http://localhost:8080';
 
-// 2) 쿠키 전송
+// 백엔드와 쿠키를 주고받기 위해 필수적인 설정입니다.
 axios.defaults.withCredentials = true;
 
-// 3) 요청 인터셉터: URL 정리 + accessToken 삽입
+// 요청 인터셉터
 axios.interceptors.request.use(config => {
-  let url = config.url || '';
-
-  // (A) 개발환경에서 백엔드 절대경로가 들어오면 호스트 제거
-  if (import.meta.env.DEV && /^https?:\/\/[^/]+/.test(url)) {
-    url = url.replace(/^https?:\/\/[^/]+/, '');
+  // 토큰 재발급 요청일 경우 헤더에 토큰을 담지 않음
+  if (config.url === '/api/auth/reissue') {
+    return config;
   }
 
-  // (B) 앞뒤 슬래시 정리
-  url = url.replace(/^\/+|\/+$/g, '');
-
-  // (C) api/ 로 시작하지 않으면 붙이기
-  if (!url.startsWith('api/')) {
-    url = `api/${url}`;
-  }
-
-  config.url = `/${url}`;
-
-  // ✅ accessToken이 있으면 Authorization 헤더에 추가
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
+}, error => {
+  return Promise.reject(error);
 });
 
-// 4) 응답 인터셉터: 401 → refresh → 재시도
+
+// 응답 인터셉터 (토큰 재발급 로직)
 axios.interceptors.response.use(
   res => res,
   async err => {
-    
     const orig = err.config;
-    if (err.response?.status === 401 && !orig._retry) {
+
+    if (err.response?.status === 401 && !orig._retry && orig.url !== '/api/auth/reissue') {
       orig._retry = true;
       try {
-        const { data } = await axios.post('/auth/refresh', null, {
-          withCredentials: true
-        });
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) throw new Error('No refresh token');
 
-        // ✅ 새 accessToken 저장 및 재시도 요청에 삽입
+        const { data } = await axios.post('/api/auth/reissue', { refreshToken });
+        
         localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+
         orig.headers.Authorization = `Bearer ${data.accessToken}`;
         return axios(orig);
-      } catch {
-        // 리프레시 실패 시 로그인 페이지로 이동
+      } catch (error) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('name');
         window.location.href = '/login';
+        return Promise.reject(error);
       }
     }
     return Promise.reject(err);

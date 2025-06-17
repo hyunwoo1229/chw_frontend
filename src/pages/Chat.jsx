@@ -22,8 +22,9 @@ function Chat() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    // 'token' -> 'accessToken'으로 키 이름 수정
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
       alert('로그인이 필요합니다');
       navigate('/login');
     }
@@ -55,13 +56,10 @@ function Chat() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       const response = await axios.post(
         'http://localhost:8080/api/chat',
-        { messages: newMessages },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { messages: newMessages }
       );
       const reply = response.data.reply;
       setMessages([...newMessages, { role: 'assistant', content: reply }]);
@@ -83,13 +81,10 @@ function Chat() {
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const token = localStorage.getItem('token');
+      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       const response = await axios.post(
         'http://localhost:8080/api/chat/summarize',
-        { messages },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { messages }
       );
       const taskId = response.data;
       if (!taskId) throw new Error('taskId 없음');

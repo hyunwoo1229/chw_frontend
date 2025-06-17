@@ -12,25 +12,26 @@ const SocialExtra = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ 쿼리에서 token과 name을 추출해서 localStorage에 저장하고,
-  //    axios의 기본 헤더에도 Authorization 설정 추가  (수정된 부분)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const token = params.get('token');
-    const name = decodeURIComponent(params.get('name') || '');  // 추가: name 추출
+    // 백엔드에서 보낸 key 이름('accessToken', 'refreshToken')으로 수정
+    const accessToken = params.get('accessToken');
+    const refreshToken = params.get('refreshToken');
+    const name = decodeURIComponent(params.get('name') || '');
 
-    if (token) {
-      // 수정: localStorage에 token 저장
-      localStorage.setItem('token', token);
-
-      // 수정: axios 기본 헤더에 Authorization 설정
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // accessToken과 refreshToken이 모두 존재할 때만 localStorage에 저장
+    if (accessToken && refreshToken) {
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
     }
     if (name) {
-      // 추가: localStorage에 name 저장
       localStorage.setItem('name', name);
     }
-  }, [location.search]); // location.search가 변경될 때마다 실행
+    
+    // 🔴 axios의 전역 설정을 직접 수정하는 코드는 매우 위험하므로 반드시 제거합니다.
+    // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+  }, [location.search]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,17 +39,15 @@ const SocialExtra = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🚀 handleSubmit 실행됨");
-    const token = localStorage.getItem('token'); // (기존 코드)
     try {
-      await axios.post('http://localhost:8080/api/member/update-extra', form, {
-        headers: { Authorization: `Bearer ${token}` }, // 기존: POST 요청 시 Header에 토큰 전달
-      });
+      // 수동으로 토큰을 가져오거나 headers를 설정할 필요 없이,
+      // 인터셉터가 자동으로 인증을 처리합니다.
+      await axios.post('/api/member/update-extra', form);
+      
       alert('정보 입력 완료!');
       navigate('/'); // 추가정보 입력 완료 후 홈으로 이동
     } catch (err) {
       console.error("❌ axios error", err);
-      console.log("📦 err.response", err.response);
       alert('정보 저장 실패: ' + (err.response?.data?.message || err.message || '서버 오류'));
     }
   };

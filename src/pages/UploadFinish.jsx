@@ -6,28 +6,33 @@ function UploadFinish() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const boardId = sessionStorage.getItem("pendingUploadBoardId");
-    const token = localStorage.getItem("token");
+    // useEffect 내에서 비동기 함수를 선언하고 바로 호출하는 패턴 사용
+    const retryUpload = async () => {
+      const boardId = sessionStorage.getItem("pendingUploadBoardId");
+      // 'token' -> 'accessToken'으로 키 이름 수정
+      const accessToken = localStorage.getItem("accessToken");
 
-    if (!token || !boardId) {
-      alert("업로드할 게시글 정보가 없습니다.");
-      navigate("/");
-      return;
-    }
+      if (!accessToken || !boardId) {
+        alert("업로드할 게시글 정보가 없거나 로그인 정보가 없습니다.");
+        navigate("/");
+        return;
+      }
 
-    axios.post(`http://localhost:8080/api/youtube/${boardId}`, null, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(res => {
-      alert("✅ YouTube 업로드 성공!");
-      window.open(res.data.data, "_blank");
-      sessionStorage.removeItem("pendingUploadBoardId");
-      navigate("/");
-    })
-    .catch(err => {
-      alert("❌ 업로드 실패: " + (err.response?.data?.message || err.message));
-      navigate("/");
-    });
+      try {
+        // headers 옵션 제거 및 async/await 구문으로 변경
+        const res = await axios.post(`http://localhost:8080/api/youtube/${boardId}`, null);
+        
+        alert("✅ YouTube 업로드 성공!");
+        window.open(res.data.data, "_blank");
+        sessionStorage.removeItem("pendingUploadBoardId");
+        navigate("/");
+      } catch (err) {
+        alert("❌ 업로드 실패: " + (err.response?.data?.message || err.message));
+        navigate("/");
+      }
+    };
+
+    retryUpload();
   }, [navigate]);
 
   return (

@@ -8,7 +8,7 @@ function BoardWrite() {
   const { state } = useLocation();
   const music = state?.music;
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  // token을 직접 가져오는 코드 제거
 
   const [title, setTitle] = useState(music?.title || '');
   const [content, setContent] = useState('');
@@ -25,17 +25,13 @@ function BoardWrite() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       await axios.post(
         'http://localhost:8080/api/board',
         {
           title,
           content,
           musicId: music.id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
       alert('게시글 등록 완료!');

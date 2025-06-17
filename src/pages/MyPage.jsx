@@ -1,64 +1,67 @@
-// src/pages/MyPage.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 
+
 function MyPage() {
-  const [boards, setBoards] = useState([]);         // 원본 게시글 배열
+  const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortType, setSortType] = useState('recent'); // 'recent' 또는 'views'
+  const [sortType, setSortType] = useState('recent');
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
-  const name = localStorage.getItem('name');
 
   useEffect(() => {
+    console.log("MyPage: useEffect 시작.");
+
+    const token = localStorage.getItem('accessToken');
     if (!token) {
+      console.log("MyPage: 토큰 없음. 로그인 페이지로 이동합니다.");
       alert('로그인이 필요합니다.');
       navigate('/login');
       return;
     }
 
+    console.log("MyPage: 토큰 발견. 게시물 데이터 요청을 시작합니다.");
+
     const fetchBoards = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/board/my', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setBoards(response.data);
+        console.log("MyPage: axios.get('/api/board/my') 호출 직전.");
+        const response = await axios.get('/api/board/my');
+        console.log("MyPage: 서버로부터 응답 받음.", response);
+        setBoards(response.data || []);
+
       } catch (error) {
-        console.error('❌ 마이페이지 게시글 조회 실패:', error);
-        alert('게시글을 불러오지 못했습니다.');
+        console.error('MyPage: 게시물 조회 실패. 에러:', error);
+        if (error.response?.status !== 401) {
+          alert('게시글을 불러오지 못했습니다.');
+        }
       } finally {
+        console.log("MyPage: fetchBoards 종료. 로딩 상태를 해제합니다.");
         setLoading(false);
       }
     };
 
     fetchBoards();
-  }, [token, navigate]);
+  }, [navigate]);
 
-  // boards 배열을 sortType에 따라 정렬한 새로운 배열을 반환
+  // 정렬 로직 (모든 예외 상황 대비)
   const sortedBoards = React.useMemo(() => {
-    if (!boards) return [];
-
-    // 배열 복사
+    if (!Array.isArray(boards)) return [];
+    
     const copy = [...boards];
-
-    if (sortType === 'views') {
-      // 조회수 내림차순 정렬
-      copy.sort((a, b) => b.views - a.views);
-    } else {
-      // recent: createdAt을 기준으로 내림차순 정렬
-      // 서버에서 받은 createdAt이 "YYYY-MM-DD HH:mm" 같은 문자열 형태라 가정
-      copy.sort((a, b) => {
-        const dateA = new Date(a.createdAt.replace(' ', 'T'));
-        const dateB = new Date(b.createdAt.replace(' ', 'T'));
-        return dateB - dateA;
-      });
-    }
-
+    copy.sort((a, b) => {
+      if (sortType === 'views') {
+        return (b.views || 0) - (a.views || 0);
+      }
+      if (!b.createdAt) return 1;
+      if (!a.createdAt) return -1;
+      try {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      } catch (e) {
+        return 0;
+      }
+    });
     return copy;
   }, [boards, sortType]);
 
@@ -73,78 +76,35 @@ function MyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-4 py-12">
       <div className="max-w-6xl mx-auto">
-        {/* ── 헤더 ── */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 text-transparent bg-clip-text">
-            📁 마이페이지
-          </h2>
-
-        </div>
-
-        {/* ── 정렬 버튼들 ── */}
+        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-6">
+          📁 마이페이지
+        </h2>
         <div className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => setSortType('views')}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              sortType === 'views'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
+          <button onClick={() => setSortType('views')} className={`px-4 py-2 rounded-md font-medium transition-colors ${sortType === 'views' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
             조회순 정렬
           </button>
-          <button
-            onClick={() => setSortType('recent')}
-            className={`px-4 py-2 rounded-md font-medium transition-colors ${
-              sortType === 'recent'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
+          <button onClick={() => setSortType('recent')} className={`px-4 py-2 rounded-md font-medium transition-colors ${sortType === 'recent' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>
             최신순 정렬
           </button>
         </div>
-
-        {/* ── 게시글 목록 ── */}
         {sortedBoards.length === 0 ? (
           <p className="text-center text-gray-400">작성한 게시글이 없습니다.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {sortedBoards.map((board) => (
-              <div
-                key={board.id}
-                onClick={() => navigate(`/board/${board.id}`)}
-                className="group bg-gray-800/50 rounded-xl overflow-hidden border border-gray-700/50 hover:border-purple-500/30 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 cursor-pointer"
-              >
-                {/* ── 썸네일 영역 ── */}
+              <div key={board.id} onClick={() => navigate(`/board/${board.id}`)} className="group bg-gray-800/50 rounded-xl overflow-hidden border border-gray-700/50 hover:border-purple-500/30 shadow-lg hover:shadow-purple-500/10 transition-all duration-300 cursor-pointer">
                 <div className="relative overflow-hidden aspect-video">
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity z-10"></div>
-                  <img
-                    src={board.imageUrl}
-                    alt="cover"
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                  />
+                  <img src={board.imageUrl || 'https://placehold.co/600x400/23232D/FFFFFF?text=No+Image'} alt="cover" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"/>
                   <div className="absolute bottom-4 left-4 right-4 z-20">
-                    <h3 className="text-lg font-bold text-white truncate mb-1">
-                      {board.title}
-                    </h3>
-                    <p className="text-sm text-gray-300">{board.authorName}</p>
+                    <h3 className="text-lg font-bold text-white truncate mb-1">{board.title || '제목 없음'}</h3>
+                    <p className="text-sm text-gray-300">{board.authorName || '작성자 미상'}</p>
                   </div>
                 </div>
-
-                {/* ── 정보 영역 ── */}
                 <div className="p-4">
-                  <p className="text-sm text-gray-400 mb-3">
-                    {board.createdAt} • 조회수 {board.views}회
-                  </p>
+                  <p className="text-sm text-gray-400 mb-3">{board.createdAt || '날짜 없음'} • 조회수 {board.views || 0}회</p>
                   <div onClick={(e) => e.stopPropagation()}>
-                    <AudioPlayer
-                      src={board.audioUrl}
-                      showJumpControls={false}
-                      customAdditionalControls={[]}
-                      layout="horizontal"
-                      className="w-full rounded-lg bg-gray-900 text-white accent-purple-500"
-                    />
+                    <AudioPlayer src={board.audioUrl} showJumpControls={false} customAdditionalControls={[]} layout="horizontal" className="w-full rounded-lg bg-gray-900 text-white accent-purple-500"/>
                   </div>
                 </div>
               </div>

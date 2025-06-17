@@ -11,7 +11,16 @@ function Music() {
   const [searchParams] = useSearchParams();
   const taskId = searchParams.get('taskId');
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  // token을 직접 가져오는 코드 제거
+
+  useEffect(() => {
+    // 페이지 접근 시 로그인 여부 확인
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (!taskId) return;
@@ -19,6 +28,8 @@ function Music() {
 
     const checkMusicReady = async () => {
       try {
+        // 이 API는 인증이 필요 없으므로 headers를 보내지 않아도 됩니다.
+        // 인터셉터는 토큰이 없으면 그냥 요청을 보냅니다.
         const response = await axios.get(`http://localhost:8080/api/suno/music-list?taskId=${taskId}`);
         const completeList = response.data.filter(m => m.audioUrl);
 
@@ -32,6 +43,10 @@ function Music() {
         }
       } catch (error) {
         console.error('음악 조회 중 오류 발생:', error);
+        // 오류 발생 시 인터벌 중지
+        clearInterval(intervalId);
+        setChecking(false);
+        setLoading(false);
       }
     };
 

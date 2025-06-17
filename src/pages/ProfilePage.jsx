@@ -1,6 +1,5 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-
 import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
@@ -15,43 +14,54 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/member/profile')
-      .then(res => {
+    const fetchProfile = async () => {
+      // 다른 컴포넌트와 마찬가지로, 먼저 로그인 상태를 확인합니다.
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+      
+      try {
+        // http... 로 시작하는 전체 주소 대신 상대 경로를 사용합니다 (baseURL은 setupAxios.js에서 설정).
+        const res = await axios.get('/api/member/profile');
         setProfile(res.data);
-        setLoading(false);
-      })
-      .catch(() => {
+      } catch (error) {
         alert('프로필을 불러오지 못했습니다.');
         navigate('/');
-      });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
   }, [navigate]);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
       alert('새 비밀번호가 일치하지 않습니다.');
       return;
     }
 
-    axios
-      .put('http://localhost:8080/api/member/profile/password', {
+    try {
+      // async/await 구문으로 변경하고 상대 경로를 사용합니다.
+      await axios.put('/api/member/profile/password', {
         oldPassword: form.currentPassword,
         newPassword: form.newPassword
-      })
-      .then(() => {
-        alert('비밀번호가 성공적으로 변경되었습니다.');
-        setEditing(false);
-        setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      })
-      .catch(err => {
-        const msg = err.response?.data?.message || '비밀번호 변경에 실패했습니다.';
-        alert(msg);
       });
+      alert('비밀번호가 성공적으로 변경되었습니다.');
+      setEditing(false);
+      setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      const msg = err.response?.data?.message || '비밀번호 변경에 실패했습니다.';
+      alert(msg);
+    }
   };
 
   if (loading) {
@@ -60,6 +70,11 @@ const ProfilePage = () => {
         로딩 중…
       </div>
     );
+  }
+  
+  // profile이 아직 null일 경우를 대비한 렌더링 방어 코드
+  if (!profile) {
+    return null;
   }
 
   // 이름 이니셜 뽑기 헬퍼

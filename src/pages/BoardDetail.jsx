@@ -12,14 +12,14 @@ function BoardDetail() {
   const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const token = localStorage.getItem('token');
+  // 'token' -> 'accessToken'으로 키 이름 수정
+  const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
     const fetchBoard = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/board/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // headers 옵션 제거 -> 인터셉터가 자동으로 처리
+        const response = await axios.get(`http://localhost:8080/api/board/${id}`);
         setBoard(response.data);
       } catch (error) {
         console.error('게시글 조회 실패:', error);
@@ -31,7 +31,8 @@ function BoardDetail() {
     };
 
     fetchBoard();
-  }, [id, token, navigate]);
+  // 의존성 배열에서 token 제거
+  }, [id, navigate]);
 
   const handleEdit = () => {
     navigate(`/board/edit/${id}`);
@@ -41,9 +42,8 @@ function BoardDetail() {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/board/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
+      await axios.delete(`http://localhost:8080/api/board/${id}`);
       alert('게시글이 삭제되었습니다.');
       navigate('/');
     } catch (error) {
@@ -57,12 +57,10 @@ function BoardDetail() {
 
     try {
       setUploading(true);
+      // headers 옵션 제거 -> 인터셉터가 자동으로 처리
       const res = await axios.post(
         `http://localhost:8080/api/youtube/${id}`,
-        null,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        null
       );
       alert(`✅ YouTube 업로드 성공!\n${res.data.data}`);
       window.open(res.data.data, '_blank');
@@ -72,7 +70,8 @@ function BoardDetail() {
 
       if (status === 401 || status === 403) {
         sessionStorage.setItem('pendingUploadBoardId', id);
-        window.location.href = `http://localhost:8080/api/youtube/connect?token=${token}`;
+        // 'token' -> 'accessToken' 변수 사용
+        window.location.href = `http://localhost:8080/api/youtube/connect?token=${accessToken}`;
       } else {
         alert(`❌ 업로드 실패: ${message}`);
       }
@@ -126,12 +125,12 @@ function BoardDetail() {
         </div>
 
         <div className="w-1/2 aspect-video mx-auto mb-6 overflow-hidden rounded-xl shadow-lg">
-  <img
-    src={board.imageUrl}
-    alt="cover"
-    className="w-full h-full object-cover"
-  />
-</div>
+          <img
+            src={board.imageUrl}
+            alt="cover"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
         <div onClick={(e) => e.stopPropagation()}>
           <AudioPlayer

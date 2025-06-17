@@ -36,14 +36,21 @@ const Layout = () => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // 로그아웃 핸들러
+// 로그아웃 핸들러
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('name');
-    setUserName(null);
-    navigate('/');
-    window.location.reload();
-  };
+  // 로컬 스토리지의 모든 인증 정보 삭제
+  localStorage.removeItem('accessToken'); 
+  localStorage.removeItem('refreshToken'); 
+  localStorage.removeItem('name');
+
+  // React 상태 업데이트 (헤더 즉시 변경을 위해)
+  setUserName(null);
+
+  // - - - - 수정할 부분 - - - - -
+  // navigate('/'); // 이 줄을 아래 코드로 변경합니다.
+  window.location.href = '/'; // 메인 페이지로 이동하면서 완전히 새로고침합니다.
+  // - - - - - - - - - - - - - - -
+};
 
   // 검색 폼 제출 시 호출
   const handleSearchSubmit = (e) => {
@@ -74,13 +81,13 @@ const Layout = () => {
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
               <Music size={20} className="text-white" />
             </div>
-            <span className="text-xl font-bold">MusicBoard</span>
+            <span className="text-4xl font-bold">Museek</span>
           </div>
 
           {/* 헤더 검색창 */}
           <form
             onSubmit={handleSearchSubmit}
-            className="flex items-center ml-4 flex-1 max-w-lg"
+            className="flex items-center ml-auto mr-auto flex-1 max-w-3xl"
           >
             <input
               type="text"
